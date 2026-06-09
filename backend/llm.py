@@ -11,14 +11,37 @@ genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 def get_model():
     return genai.GenerativeModel("gemini-2.5-flash")
 
+class LLMError(Exception):
+    pass
+
+class LLMQuotaError(LLMError):
+    pass
+
+class LLMServiceError(LLMError):
+    pass
+
+def model_generate(prompt: str):
+    model = get_model()
+    try:
+        return model.generate_content(prompt)
+    except Exception as e:
+        message = str(e)
+        lowercase = message.lower()
+        if "quota" in lowercase or "429" in lowercase:
+            raise LLMQuotaError(
+                "Gemini quota exceeded or request limit reached. Please wait, or update your API key if you have another valid key."
+            ) from e
+        raise LLMServiceError(
+            "Gemini service error. Please check your API key and quota."
+        ) from e
+
 def generate_first_question(name: str, role: str, experience: str) -> str:
     prompt = GENERATE_QUESTION_PROMPT.format(
         candidate_name=name,
         job_role=role,
         experience_level=experience
     )
-    model = get_model()
-    response = model.generate_content(prompt)
+    response = model_generate(prompt)
     return response.text.strip()
 
 def evaluate_answer(role: str, experience: str, question: str, answer: str, is_last: bool):
@@ -29,8 +52,7 @@ def evaluate_answer(role: str, experience: str, question: str, answer: str, is_l
         answer=answer,
         is_last_question=str(is_last).lower()
     )
-    model = get_model()
-    response = model.generate_content(prompt)
+    response = model_generate(prompt)
     text_response = response.text.strip()
     
     if text_response.startswith("```json"):
@@ -46,7 +68,7 @@ def evaluate_answer(role: str, experience: str, question: str, answer: str, is_l
         if "feedback" not in data: data["feedback"] = "No feedback generated."
         if "next_question" not in data: data["next_question"] = None
         return data
-    except Exception as e:
+    except Exception:
         return {
             "technical_score": 5,
             "communication_score": 5,
@@ -68,8 +90,7 @@ def generate_report(name: str, role: str, interactions: list):
         transcript=transcript
     )
     
-    model = get_model()
-    response = model.generate_content(prompt)
+    response = model_generate(prompt)
     text_response = response.text.strip()
     
     if text_response.startswith("```json"):
@@ -80,7 +101,7 @@ def generate_report(name: str, role: str, interactions: list):
     try:
         data = json.loads(text_response)
         return data
-    except Exception as e:
+    except Exception:
         return {
             "strengths": ["Completed the interview"],
             "improvement_areas": ["Needs more comprehensive evaluation"],

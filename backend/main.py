@@ -8,7 +8,7 @@ from models import (
     FinalReportResponse
 )
 from storage import interviews
-from llm import generate_first_question, evaluate_answer, generate_report
+from llm import LLMError, LLMQuotaError, generate_first_question, evaluate_answer, generate_report
 from logger import common_logger, get_user_logger
 
 app = FastAPI(title="AI Interview Assistant API")
@@ -52,9 +52,15 @@ async def start_interview(request: StartInterviewRequest):
             interview_id=interview_id,
             question=question
         )
+    except LLMQuotaError as e:
+        common_logger.error(f"Quota error starting interview: {str(e)}")
+        raise HTTPException(status_code=429, detail=str(e))
+    except LLMError as e:
+        common_logger.error(f"LLM error starting interview: {str(e)}")
+        raise HTTPException(status_code=502, detail=str(e))
     except Exception as e:
         common_logger.error(f"Error starting interview: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.post("/submit-answer", response_model=SubmitAnswerResponse)
 async def submit_answer(request: SubmitAnswerRequest):
@@ -114,9 +120,15 @@ async def submit_answer(request: SubmitAnswerRequest):
             feedback=evaluation["feedback"],
             next_question=evaluation["next_question"]
         )
+    except LLMQuotaError as e:
+        user_logger.error(f"Quota error evaluating answer: {str(e)}")
+        raise HTTPException(status_code=429, detail=str(e))
+    except LLMError as e:
+        user_logger.error(f"LLM error evaluating answer: {str(e)}")
+        raise HTTPException(status_code=502, detail=str(e))
     except Exception as e:
         user_logger.error(f"Error evaluating answer: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/report/{interview_id}", response_model=FinalReportResponse)
 async def get_report(interview_id: str):
@@ -165,9 +177,15 @@ async def get_report(interview_id: str):
         
         return FinalReportResponse(**report)
         
+    except LLMQuotaError as e:
+        user_logger.error(f"Quota error generating report: {str(e)}")
+        raise HTTPException(status_code=429, detail=str(e))
+    except LLMError as e:
+        user_logger.error(f"LLM error generating report: {str(e)}")
+        raise HTTPException(status_code=502, detail=str(e))
     except Exception as e:
         user_logger.error(f"Error generating report: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/")
 def read_root():
