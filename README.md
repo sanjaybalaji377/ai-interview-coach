@@ -14,9 +14,9 @@ This application allows a user to select a job role and experience level, receiv
 
 ## Live Links
 
-- **Frontend**: [Deploy on Vercel](https://vercel.com) (Update URL after deployment)
-- **Backend API**: [Deploy on Render](https://render.com) (Update URL after deployment)
-- **API Documentation**: Available at `/docs` on deployed backend
+- **Frontend**: https://ai-interview-coach-xi-seven.vercel.app
+- **Backend API**: https://ai-interview-coach-dbej.onrender.com
+- **API Documentation**: https://ai-interview-coach-dbej.onrender.com/docs
 
 *Note: The backend is hosted on Render free tier, so the first request may take 30–60 seconds due to cold start.*
 
