@@ -12,6 +12,26 @@ This application allows a user to select a job role and experience level, receiv
 - **Conversation History**: All Q&A pairs are persistently stored per interview session.
 - **Multiple Scoring Categories**: Instead of a single score, the LLM evaluates Technical Knowledge, Communication, and Relevance separately (1-10) and calculates an overall average.
 
+## Live Links
+
+- **Frontend**: [Deploy on Vercel](https://vercel.com) (Update URL after deployment)
+- **Backend API**: [Deploy on Render](https://render.com) (Update URL after deployment)
+- **API Documentation**: Available at `/docs` on deployed backend
+
+*Note: The backend is hosted on Render free tier, so the first request may take 30–60 seconds due to cold start.*
+
+## Interview Flow
+
+1. **User enters candidate details**: Candidate name, job role, and experience level
+2. **Backend generates first question**: Uses Gemini to create a contextual interview question
+3. **User submits answer**: Candidate provides their response to each question
+4. **Backend evaluates answer**: Gemini evaluates based on:
+   - **Technical Knowledge** (1-10): Depth and accuracy of technical concepts
+   - **Communication** (1-10): Clarity and articulation
+   - **Relevance** (1-10): How well the answer addresses the question
+5. **Calculate score**: Backend averages the three scores for an overall score
+6. **After 3 questions**: Final comprehensive report is generated with strengths and improvement areas
+
 ## Tech Stack
 - **Backend**: FastAPI, Pydantic, google-generativeai, python-dotenv
 - **Frontend**: React (Vite)

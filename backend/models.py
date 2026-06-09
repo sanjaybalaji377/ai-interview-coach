@@ -16,6 +16,7 @@ class SubmitAnswerRequest(BaseModel):
     answer: str
 
 class SubmitAnswerResponse(BaseModel):
+    score: float
     technical_score: int
     communication_score: int
     relevance_score: int

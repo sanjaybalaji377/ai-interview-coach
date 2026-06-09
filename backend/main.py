@@ -106,6 +106,7 @@ async def submit_answer(request: SubmitAnswerRequest):
             interviews[request.interview_id]["status"] = "completed"
             
         return SubmitAnswerResponse(
+            score=overall,
             technical_score=t_score,
             communication_score=c_score,
             relevance_score=r_score,
