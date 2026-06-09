@@ -39,14 +39,18 @@ This application allows a user to select a job role and experience level, receiv
 ## Local Setup Instructions
 
 ### Backend (FastAPI)
+The backend source code lives in the `backend/` folder. The root-level `app.py` file is only used as a deployment entrypoint for Render and loads `backend/main.py`.
+
 1. `cd backend`
 2. `python -m venv venv`
-3. Activate virtual environment (`venv\Scripts\activate` on Windows, `source venv/bin/activate` on Mac/Linux)
+3. Activate virtual environment (`venv\\Scripts\\activate` on Windows, `source venv/bin/activate` on Mac/Linux)
 4. `pip install -r requirements.txt`
 5. Create a `.env` file and add your API key: `GOOGLE_API_KEY=your_key`
 6. `uvicorn main:app --reload`
 
 The backend will run on `http://127.0.0.1:8000`
+
+> Note: The backend includes JSON parsing fallback logic for malformed LLM output, so if Gemini returns invalid JSON the app falls back to a safe default response instead of crashing.
 
 ### Frontend (React)
 1. `cd frontend`
